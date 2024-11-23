@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
@@ -168,4 +169,4 @@ def main():
                 st.plotly_chart(fig2, use_container_width=True)
 
 if __name__ == "__main__":
-    main()
+    main() 
