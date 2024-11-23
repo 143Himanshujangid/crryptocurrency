@@ -9,7 +9,7 @@ st.set_page_config(layout="wide", page_title="Data Analysis Dashboard")
 # Load data
 @st.cache_data
 def load_data():
-    df = pd.read_csv("cleaned_sorted_output_cleaned.csv")  # Adjust path if needed
+    df = pd.read_csv("C:\Users\HIMANSHU\OneDrive\Desktop\st2\cleaned_sorted_output_cleaned.csv")  # Adjust path if needed
     return df
 
 # Authentication function
