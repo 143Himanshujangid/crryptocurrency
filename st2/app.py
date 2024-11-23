@@ -1,11 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import numpy as np
 import os
 from plotly.subplots import make_subplots
-import plotly.graph_objects as go
-from datetime import datetime
 
 # Set page configuration
 st.set_page_config(
@@ -15,342 +14,248 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Enhanced Custom CSS for better styling
+# Enhanced CSS for better responsiveness and modern styling
 st.markdown("""
     <style>
     .stApp {
         max-width: 100%;
         padding: 1rem;
     }
-    .metric-card {
-        background: linear-gradient(145deg, #f3f4f6, #ffffff);
-        border: 1px solid #e5e7eb;
-        padding: 1rem;
+    .streamlit-expanderHeader {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+    /* Modern card styling */
+    .crypto-card {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 1.5rem;
         border-radius: 1rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
     }
-    .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* Metric styling */
+    .stMetric {
+        background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 0.8rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    .price-up {
-        background: linear-gradient(145deg, #dcffe4, #f0fff4);
-        border-color: #9ae6b4;
+    /* Chart container styling */
+    .chart-container {
+        background: white;
+        padding: 1rem;
+        border-radius: 0.8rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin: 1rem 0;
     }
-    .price-down {
-        background: linear-gradient(145deg, #fed7d7, #fff5f5);
-        border-color: #feb2b2;
-    }
-    .volume-card {
-        background: linear-gradient(145deg, #e6f6ff, #f0f9ff);
-        border-color: #90cdf4;
-    }
-    .market-cap-card {
-        background: linear-gradient(145deg, #faf5ff, #f8f5ff);
-        border-color: #d6bcfa;
-    }
+    /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
+        gap: 8px;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: #f8fafc;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem 0.5rem 0 0;
+        background-color: #f0f2f6;
+        border-radius: 4px;
+        padding: 8px 16px;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #e2e8f0;
+        background-color: #2193b0;
+        color: white;
     }
     </style>
 """, unsafe_allow_html=True)
 
 @st.cache_data(ttl=3600)
-def load_data():
+def load_data(file_path=None):
     try:
+        if file_path:
+            return pd.read_csv(file_path)
+        
         local_path = "cleaned_sorted_output_cleaned.csv"
         if os.path.exists(local_path):
             df = pd.read_csv(local_path)
         else:
             url = "https://raw.githubusercontent.com/143Himanshujangid/crryptocurrency/main/st2/cleaned_sorted_output_cleaned.csv"
             df = pd.read_csv(url)
-        # Convert timestamp to datetime
-        df['last_updated'] = pd.to_datetime(df['last_updated'])
         return df
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
         return None
 
-def create_advanced_chart(data, chart_type, x_col, y_cols, color_col=None):
+def create_advanced_chart(data, chart_type, x_col, y_col, color_col=None):
     try:
         if len(data) == 0:
             return None
         
+        # Enhanced chart configuration
         layout = dict(
             template="plotly_white",
             height=500,
             margin=dict(l=20, r=20, t=40, b=20),
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            hovermode='x unified'
+            plot_bgcolor='rgba(255,255,255,0.9)',
+            paper_bgcolor='rgba(255,255,255,0.9)',
+            font=dict(family="Arial, sans-serif")
         )
         
-        if chart_type == "Multi-Line":
-            fig = go.Figure()
-            for y_col in y_cols:
-                fig.add_trace(go.Scatter(
-                    x=data[x_col],
-                    y=data[y_col],
-                    name=y_col,
-                    mode='lines+markers'
-                ))
-        elif chart_type == "Area":
-            fig = go.Figure()
-            for y_col in y_cols:
-                fig.add_trace(go.Scatter(
-                    x=data[x_col],
-                    y=data[y_col],
-                    name=y_col,
-                    fill='tonexty'
-                ))
-        elif chart_type == "Candlestick":
-            fig = go.Figure(go.Candlestick(
+        title = f"{chart_type} Analysis: {y_col} vs {x_col}"
+        
+        if chart_type == "Candlestick":
+            fig = go.Figure(data=[go.Candlestick(
                 x=data[x_col],
-                open=data[y_cols[0]],
-                high=data[y_cols[1]],
-                low=data[y_cols[2]],
-                close=data[y_cols[3]]
-            ))
-        elif chart_type == "Bar":
-            fig = px.bar(data, x=x_col, y=y_cols[0], color=color_col)
-        elif chart_type == "Scatter Matrix":
-            fig = px.scatter_matrix(data, dimensions=y_cols)
-        elif chart_type == "3D Scatter":
-            if len(y_cols) >= 3:
-                fig = px.scatter_3d(data, x=y_cols[0], y=y_cols[1], z=y_cols[2])
+                open=data['open'] if 'open' in data.columns else data[y_col],
+                high=data['high'] if 'high' in data.columns else data[y_col],
+                low=data['low'] if 'low' in data.columns else data[y_col],
+                close=data['close'] if 'close' in data.columns else data[y_col]
+            )])
+        elif chart_type == "Area":
+            fig = px.area(data, x=x_col, y=y_col, color=color_col)
         elif chart_type == "Bubble":
-            if len(y_cols) >= 3:
-                fig = px.scatter(data, x=y_cols[0], y=y_cols[1], size=y_cols[2],
-                               hover_name=x_col)
-        else:  # Default to line chart
-            fig = px.line(data, x=x_col, y=y_cols[0])
-            
-        fig.update_layout(**layout)
+            size_col = data.select_dtypes(include=[np.number]).columns[0]
+            fig = px.scatter(data, x=x_col, y=y_col, size=size_col, color=color_col)
+        elif chart_type == "Heat Map":
+            pivot_table = pd.pivot_table(data, values=y_col, index=x_col, aggfunc='mean')
+            fig = px.imshow(pivot_table, aspect='auto')
+        else:
+            # Default charts from previous implementation
+            chart_funcs = {
+                "Bar": px.bar,
+                "Line": px.line,
+                "Scatter": px.scatter,
+                "Box": px.box,
+                "Violin": px.violin,
+                "Histogram": px.histogram
+            }
+            fig = chart_funcs[chart_type](data, x=x_col, y=y_col, color=color_col)
+        
+        fig.update_layout(title=title, **layout)
         return fig
     except Exception as e:
         st.error(f"Error creating chart: {str(e)}")
         return None
 
-def display_enhanced_metrics(filtered_df):
-    with st.container():
+def display_enhanced_metrics(df, currency):
+    metrics_container = st.container()
+    with metrics_container:
         cols = st.columns(4)
-        current_price = filtered_df['price_usd'].iloc[-1]
-        price_change = filtered_df['percent_change_24h'].iloc[-1]
+        metrics = [
+            ("Current Price", "price_usd", "${:,.2f}"),
+            ("Market Cap", "market_cap_usd", "${:,.0f}"),
+            ("24h Volume", "24h_volume_usd", "${:,.0f}"),
+            ("24h Change", "percent_change_24h", "{:,.2f}%")
+        ]
         
-        # Price Card
-        with cols[0]:
-            price_class = "price-up" if price_change >= 0 else "price-down"
-            st.markdown(f"""
-                <div class="metric-card {price_class}">
-                    <h3 style="margin:0;">Current Price</h3>
-                    <h2 style="margin:0;">${current_price:,.2f}</h2>
-                    <p style="margin:0;color:{'green' if price_change >= 0 else 'red'}">
-                        {price_change:+.2f}% (24h)
-                    </p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        # Market Cap Card
-        with cols[1]:
-            market_cap = filtered_df['market_cap_usd'].iloc[-1]
-            st.markdown(f"""
-                <div class="metric-card market-cap-card">
-                    <h3 style="margin:0;">Market Cap</h3>
-                    <h2 style="margin:0;">${market_cap:,.0f}</h2>
-                    <p style="margin:0;">Rank: {filtered_df['rank'].iloc[-1]}</p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        # Volume Card
-        with cols[2]:
-            volume = filtered_df['24h_volume_usd'].iloc[-1]
-            st.markdown(f"""
-                <div class="metric-card volume-card">
-                    <h3 style="margin:0;">24h Volume</h3>
-                    <h2 style="margin:0;">${volume:,.0f}</h2>
-                    <p style="margin:0;">Volume/Market Cap: {(volume/market_cap):,.2%}</p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        # Supply Card
-        with cols[3]:
-            available_supply = filtered_df['available_supply'].iloc[-1]
-            total_supply = filtered_df['total_supply'].iloc[-1]
-            st.markdown(f"""
-                <div class="metric-card">
-                    <h3 style="margin:0;">Supply Info</h3>
-                    <h2 style="margin:0;">{available_supply:,.0f}</h2>
-                    <p style="margin:0;">Total Supply: {total_supply:,.0f}</p>
-                </div>
-            """, unsafe_allow_html=True)
+        for i, (label, col_name, format_str) in enumerate(metrics):
+            with cols[i]:
+                try:
+                    value = df[col_name].iloc[-1]
+                    formatted_value = format_str.format(value)
+                    delta = None
+                    if "percent_change" in col_name:
+                        delta = f"{value:+.2f}%"
+                    st.metric(
+                        label=label,
+                        value=formatted_value,
+                        delta=delta,
+                        delta_color="normal" if not delta or float(delta.strip('%+')) > 0 else "inverse"
+                    )
+                except Exception as e:
+                    st.error(f"Error displaying metric {label}: {str(e)}")
 
 def main():
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
-
-    # Login section
-    if not st.session_state.authenticated:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.title("📊 Crypto Analysis Dashboard")
-            with st.form("login_form"):
-                username = st.text_input("Username")
-                password = st.text_input("Password", type="password")
-                submit = st.form_submit_button("Login")
-                
-                if submit:
-                    if username == "admin" and password == "admin123":
-                        st.session_state.authenticated = True
-                        st.experimental_rerun()
-                    else:
-                        st.error("Invalid credentials!")
-        return
-
-    # Main dashboard
     st.title("🚀 Advanced Cryptocurrency Analysis Dashboard")
     
-    # Load data
-    df = load_data()
-    if df is None:
-        st.error("Failed to load data. Please try again later.")
-        return
-
-    # Sidebar controls
+    # Sidebar configuration
     with st.sidebar:
-        st.title("Dashboard Controls")
+        st.title("Analysis Controls")
         
-        analysis_options = ["Currency Analysis", "Global Analysis", "Dynamic Analysis"]
-        analysis_type = st.selectbox("Select Analysis Type", analysis_options)
+        # Data source selection
+        data_source = st.radio("Select Data Source", ["Default Dataset", "Local Dataset"])
         
-        if analysis_type == "Currency Analysis":
-            currency_options = df['symbol'].unique().tolist()
-            selected_currency = st.selectbox(
-                "Select Cryptocurrency",
-                currency_options,
-                index=0 if 'BTC' in currency_options else 0
-            )
-            filtered_df = df[df['symbol'] == selected_currency].copy()
+        if data_source == "Local Dataset":
+            uploaded_file = st.file_uploader("Upload Dataset (CSV)", type=["csv"])
+            df = load_data(uploaded_file) if uploaded_file else None
+        else:
+            df = load_data()
         
-        # Chart selection
-        chart_types = [
-            "Multi-Line", "Area", "Candlestick", "Bar", 
-            "Scatter Matrix", "3D Scatter", "Bubble"
-        ]
-        selected_chart = st.selectbox("Select Chart Type", chart_types)
+        if df is not None:
+            # Currency selection with search
+            currency_options = df['symbol'].unique().tolist() if 'symbol' in df.columns else []
+            if currency_options:
+                selected_currency = st.selectbox(
+                    "Select Cryptocurrency",
+                    currency_options,
+                    index=0 if 'BTC' in currency_options else 0
+                )
+            
+            # Enhanced visualization options
+            st.subheader("Visualization Settings")
+            chart_types = [
+                "Line", "Bar", "Scatter", "Area", "Candlestick", 
+                "Heat Map", "Bubble", "Box", "Violin", "Histogram"
+            ]
+            selected_chart = st.selectbox("Chart Type", chart_types)
+            
+            # Dataset statistics
+            st.subheader("Dataset Info")
+            st.write(f"Total Records: {len(df):,}")
+            st.write(f"Columns: {len(df.columns)}")
+            if 'last_updated' in df.columns:
+                st.write(f"Last Updated: {df['last_updated'].max()}")
 
-    # Main content area
-    if analysis_type == "Currency Analysis":
-        # Display enhanced metrics
-        display_enhanced_metrics(filtered_df)
-        
-        # Analysis tabs
-        tabs = st.tabs(["📈 Price Analysis", "📊 Market Analysis", "📱 Technical Indicators"])
+    if df is not None:
+        # Main content area
+        tabs = st.tabs(["📊 Advanced Analysis", "📈 Time Series", "🔍 Custom Analysis"])
         
         with tabs[0]:
-            st.subheader("Price and Volume Analysis")
-            x_col = st.selectbox("Select X-axis", df.columns)
-            y_cols = st.multiselect(
-                "Select Y-axis Metrics",
-                df.select_dtypes(include=[np.number]).columns,
-                default=['price_usd']
-            )
+            if 'symbol' in df.columns:
+                filtered_df = df[df['symbol'] == selected_currency].copy()
+                display_enhanced_metrics(filtered_df, selected_currency)
             
-            if y_cols:
-                fig = create_advanced_chart(filtered_df, selected_chart, x_col, y_cols)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-    
-    elif analysis_type == "Global Analysis":
-        st.subheader("Global Market Analysis")
-        
-        # Date range selector
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date = st.date_input("Start Date", min(df['last_updated']).date())
-        with col2:
-            end_date = st.date_input("End Date", max(df['last_updated']).date())
-        
-        # Filter data by date
-        mask = (df['last_updated'].dt.date >= start_date) & (df['last_updated'].dt.date <= end_date)
-        date_filtered_df = df[mask]
-        
-        # Metric selectors
-        x_col = st.selectbox("Select X-axis Metric", df.columns)
-        y_cols = st.multiselect(
-            "Select Y-axis Metrics",
-            df.select_dtypes(include=[np.number]).columns,
-            default=['price_usd', 'market_cap_usd']
-        )
-        
-        # Optional filters
-        col1, col2 = st.columns(2)
-        with col1:
-            min_market_cap = st.number_input(
-                "Minimum Market Cap (USD)",
-                min_value=0,
-                value=0
-            )
-        with col2:
-            top_n = st.number_input(
-                "Top N Cryptocurrencies",
-                min_value=1,
-                max_value=len(df['symbol'].unique()),
-                value=10
-            )
-        
-        # Apply filters
-        filtered_df = date_filtered_df[date_filtered_df['market_cap_usd'] >= min_market_cap]
-        top_symbols = filtered_df.groupby('symbol')['market_cap_usd'].mean().nlargest(top_n).index
-        filtered_df = filtered_df[filtered_df['symbol'].isin(top_symbols)]
-        
-        if y_cols:
-            fig = create_advanced_chart(filtered_df, selected_chart, x_col, y_cols, color_col='symbol')
+            # Column selection for visualization
+            col1, col2 = st.columns(2)
+            with col1:
+                x_col = st.selectbox("Select X-axis", df.columns)
+            with col2:
+                y_col = st.selectbox("Select Y-axis", df.select_dtypes(include=[np.number]).columns)
+            
+            # Create and display chart
+            fig = create_advanced_chart(df, selected_chart, x_col, y_col)
             if fig:
                 st.plotly_chart(fig, use_container_width=True)
-    
-    else:  # Dynamic Analysis
-        st.header("Dynamic Data Comparison")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            uploaded_file_1 = st.file_uploader("Upload First Dataset (CSV)", type=["csv"])
-            if uploaded_file_1:
-                df1 = pd.read_csv(uploaded_file_1)
-                with st.expander("Preview Dataset 1"):
-                    st.dataframe(df1.head())
-                x_col = st.selectbox("Select X-axis (Dataset 1)", df1.columns)
-                y_cols = st.multiselect(
-                    "Select Y-axis Metrics (Dataset 1)",
-                    df1.select_dtypes(include=[np.number]).columns
+        with tabs[1]:
+            st.subheader("Time Series Analysis")
+            if 'last_updated' in df.columns:
+                time_fig = create_advanced_chart(
+                    df, 
+                    "Line", 
+                    "last_updated",
+                    st.selectbox("Select Metric", df.select_dtypes(include=[np.number]).columns)
                 )
-                if y_cols:
-                    fig = create_advanced_chart(df1, selected_chart, x_col, y_cols)
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-
-        with col2:
-            uploaded_file_2 = st.file_uploader("Upload Second Dataset (CSV)", type=["csv"])
-            if uploaded_file_2:
-                df2 = pd.read_csv(uploaded_file_2)
-                with st.expander("Preview Dataset 2"):
-                    st.dataframe(df2.head())
-                x_col = st.selectbox("Select X-axis (Dataset 2)", df2.columns)
-                y_cols = st.multiselect(
-                    "Select Y-axis Metrics (Dataset 2)",
-                    df2.select_dtypes(include=[np.number]).columns
-                )
-                if y_cols:
-                    fig = create_advanced_chart(df2, selected_chart, x_col, y_cols)
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
+                if time_fig:
+                    st.plotly_chart(time_fig, use_container_width=True)
+        
+        with tabs[2]:
+            st.subheader("Custom Analysis")
+            # Multi-chart analysis
+            col1, col2 = st.columns(2)
+            with col1:
+                chart_type_1 = st.selectbox("First Chart Type", chart_types, key="chart1")
+                x_col_1 = st.selectbox("X-axis (Chart 1)", df.columns, key="x1")
+                y_col_1 = st.selectbox("Y-axis (Chart 1)", df.select_dtypes(include=[np.number]).columns, key="y1")
+                fig1 = create_advanced_chart(df, chart_type_1, x_col_1, y_col_1)
+                if fig1:
+                    st.plotly_chart(fig1, use_container_width=True)
+            
+            with col2:
+                chart_type_2 = st.selectbox("Second Chart Type", chart_types, key="chart2")
+                x_col_2 = st.selectbox("X-axis (Chart 2)", df.columns, key="x2")
+                y_col_2 = st.selectbox("Y-axis (Chart 2)", df.select_dtypes(include=[np.number]).columns, key="y2")
+                fig2 = create_advanced_chart(df, chart_type_2, x_col_2, y_col_2)
+                if fig2:
+                    st.plotly_chart(fig2, use_container_width=True)
 
 if __name__ == "__main__":
     main()
