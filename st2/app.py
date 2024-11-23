@@ -1,158 +1,21 @@
-import streamlit as st
+mport streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
 import os
 
-# Set page configuration with dark theme - MUST BE FIRST STREAMLIT COMMAND
+# Set page configuration
 st.set_page_config(layout="wide", page_title="Data Analysis Dashboard")
-
-# Custom CSS for dark theme and responsiveness
-st.markdown("""
-    <style>
-    /* Dark theme for main container */
-    .main {
-        background-color: #0e1117;
-        color: #ffffff;
-    }
-    
-    /* Dark sidebar */
-    .css-1d391kg {
-        background-color: #1a1c23;
-        padding: 1rem 1rem 1rem;
-    }
-    
-    /* Sidebar text */
-    .css-1d391kg {
-        color: #ffffff;
-    }
-    
-    /* Card containers */
-    div.element-container {
-        background-color: #1a1c23;
-        border-radius: 10px;
-        padding: 15px;
-        margin: 10px 0;
-        border: 1px solid #2d3035;
-    }
-    
-    /* Metric cards */
-    div[data-testid="metric-container"] {
-        background-color: #2d3035;
-        border-radius: 8px;
-        padding: 15px;
-        margin: 5px;
-        color: #ffffff;
-        border: 1px solid #404348;
-    }
-    
-    /* Metric text colors */
-    div[data-testid="metric-container"] label {
-        color: #c2c7d0;
-    }
-    
-    div[data-testid="metric-container"] div {
-        color: #ffffff;
-    }
-    
-    /* Headers */
-    h1, h2, h3, h4, h5, h6 {
-        color: #ffffff !important;
-    }
-    
-    /* Text inputs */
-    .stTextInput>div>div>input {
-        background-color: #2d3035;
-        color: #ffffff;
-        border: 1px solid #404348;
-    }
-    
-    /* Selectbox */
-    .stSelectbox>div>div {
-        background-color: #2d3035;
-        color: #ffffff;
-    }
-    
-    /* Multiselect */
-    .stMultiSelect>div {
-        background-color: #2d3035;
-        color: #ffffff;
-    }
-    
-    /* Button styling */
-    .stButton>button {
-        background-color: #4a4f57;
-        color: #ffffff;
-        border: 1px solid #5c616a;
-        border-radius: 5px;
-        padding: 0.5rem 1rem;
-        width: 100%;
-    }
-    
-    .stButton>button:hover {
-        background-color: #5c616a;
-        border-color: #696e78;
-    }
-    
-    /* File uploader */
-    .stUploadButton {
-        background-color: #2d3035;
-        color: #ffffff;
-        border: 1px solid #404348;
-        border-radius: 5px;
-    }
-    
-    /* Plotly chart background */
-    .js-plotly-plot .plotly .main-svg {
-        background-color: #1a1c23 !important;
-    }
-    
-    /* Error messages */
-    .stAlert {
-        background-color: #462c32;
-        color: #ff4b4b;
-        border: 1px solid #ff4b4b;
-    }
-    
-    /* Better spacing for mobile */
-    @media (max-width: 768px) {
-        .row-widget {
-            margin: 10px 0;
-        }
-        .stMetric {
-            margin: 5px 0;
-        }
-    }
-    
-    /* Chart container */
-    .stPlotlyChart {
-        background-color: #1a1c23;
-        border-radius: 10px;
-        padding: 10px;
-        margin: 15px 0;
-        border: 1px solid #2d3035;
-    }
-    
-    /* Links */
-    a {
-        color: #4a9eff !important;
-    }
-    
-    /* Dropdown options */
-    option {
-        background-color: #2d3035;
-        color: #ffffff;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # Load data
 @st.cache_data
 def load_data():
+    # Check if file exists locally
     local_path = "cleaned_sorted_output_cleaned.csv"
     if os.path.exists(local_path):
         df = pd.read_csv(local_path)
     else:
+        # Use GitHub URL if not found locally
         url = "https://raw.githubusercontent.com/143Himanshujangid/crryptocurrency/main/st2/cleaned_sorted_output_cleaned.csv"
         df = pd.read_csv(url)
     return df
@@ -161,32 +24,8 @@ def load_data():
 def authenticate(username, password):
     return username == "admin" and password == "admin123"
 
-# Function to create charts based on selection with dark theme
+# Function to create charts based on selection
 def create_chart(data, chart_type, columns, color_col=None):
-    # Define dark theme colors
-    dark_template = dict(
-        layout=dict(
-            paper_bgcolor='#1a1c23',
-            plot_bgcolor='#1a1c23',
-            font=dict(color='#ffffff'),
-            title=dict(color='#ffffff'),
-            xaxis=dict(
-                gridcolor='#2d3035',
-                linecolor='#2d3035',
-                tickcolor='#ffffff',
-                tickfont=dict(color='#ffffff'),
-                title=dict(color='#ffffff')
-            ),
-            yaxis=dict(
-                gridcolor='#2d3035',
-                linecolor='#2d3035',
-                tickcolor='#ffffff',
-                tickfont=dict(color='#ffffff'),
-                title=dict(color='#ffffff')
-            )
-        )
-    )
-    
     if chart_type == "Bar":
         fig = px.bar(data, x=columns[0], y=columns[1], color=color_col,
                      title="Bar Chart Analysis")
@@ -205,21 +44,6 @@ def create_chart(data, chart_type, columns, color_col=None):
     else:  # Histogram
         fig = px.histogram(data, x=columns[1], color=color_col,
                            title="Histogram Analysis")
-    
-    # Apply dark theme to chart
-    fig.update_layout(
-        dark_template['layout'],
-        autosize=True,
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=450,
-        showlegend=True,
-        legend=dict(
-            font=dict(color='#ffffff'),
-            bgcolor='#1a1c23',
-            bordercolor='#2d3035'
-        )
-    )
-    
     return fig
 
 # Main function
@@ -345,4 +169,4 @@ def main():
                 st.plotly_chart(fig2, use_container_width=True)
 
 if __name__ == "__main__":
-    main()
+    main() 
