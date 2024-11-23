@@ -4,6 +4,9 @@ import plotly.express as px
 import numpy as np
 import os
 
+# Set page configuration with dark theme - MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(layout="wide", page_title="Data Analysis Dashboard")
+
 # Custom CSS for dark theme and responsiveness
 st.markdown("""
     <style>
@@ -142,9 +145,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
-# Set page configuration with dark theme
-st.set_page_config(layout="wide", page_title="Data Analysis Dashboard")
 
 # Load data
 @st.cache_data
