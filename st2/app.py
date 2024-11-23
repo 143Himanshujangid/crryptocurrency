@@ -90,29 +90,7 @@ def main():
     analysis_type = st.sidebar.selectbox("Select Analysis Type", ["Static", "Dynamic"])
     
     # Analysis questions
-    questions = [
-        "Distribution Analysis",
-        "Category Comparison",
-        "Value Ranges Analysis",
-        "Correlation Analysis",
-        "Frequency Analysis",
-        "Top/Bottom Analysis",
-        "Aggregation Analysis",
-        "Percentage Distribution",
-        "Statistical Summary",
-        "Variance Analysis",
-        "Pattern Recognition",
-        "Outlier Detection",
-        "Group Comparison",
-        "Composition Analysis",
-        "Range Distribution",
-        "Value Counts",
-        "Measure of Central Tendency",
-        "Dispersion Analysis",
-        "Category Distribution",
-        "Numerical Distribution"
-    ]
-    selected_question = st.sidebar.selectbox("Select Analysis Question", questions)
+    
     
     # Chart type selection
     chart_types = ["Bar", "Line", "Scatter", "Pie", "Box", "Histogram"]
