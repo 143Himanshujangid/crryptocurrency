@@ -3,4 +3,4 @@ Panda
 Numpy
 Matplotlib
 plotly
-streamlit>=0.88.0
+streamlit>=1.32.0
