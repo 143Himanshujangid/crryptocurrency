@@ -49,7 +49,7 @@ def main():
             if st.button("Login"):
                 if authenticate(username, password):
                     st.session_state.authenticated = True
-                    st.experimental_rerun()
+                    # st.experimental_rerun()  # Removed rerun, as state will trigger a re-render
                 else:
                     st.error("Invalid credentials")
         return  # End the function here if not authenticated
