@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import plotly.express as px
 import numpy as np
@@ -129,32 +128,13 @@ def main():
 
             # Display cards with currency information
             st.subheader("Currency Information")
-            with st.container():
-                col1, col2, col3 = st.columns(3)
-
-                with col1:
-                    st.markdown(f"""
-                    <div style="background-color:#f9f9f9; padding:20px; border-radius:10px; text-align:center; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
-                        <h3 style="color:#007BFF;">Price (USD)</h3>
-                        <p style="font-size:24px; font-weight:bold;">${filtered_df['price_usd'].iloc[0]:.2f}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                with col2:
-                    st.markdown(f"""
-                    <div style="background-color:#f9f9f9; padding:20px; border-radius:10px; text-align:center; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
-                        <h3 style="color:#28a745;">Market Cap (USD)</h3>
-                        <p style="font-size:24px; font-weight:bold;">${filtered_df['market_cap_usd'].iloc[0]:.2f}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                with col3:
-                    st.markdown(f"""
-                    <div style="background-color:#f9f9f9; padding:20px; border-radius:10px; text-align:center; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
-                        <h3 style="color:#ffc107;">24h Volume (USD)</h3>
-                        <p style="font-size:24px; font-weight:bold;">${filtered_df['24h_volume_usd'].iloc[0]:.2f}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Price (USD)", f"${filtered_df['price_usd'].iloc[0]:.2f}")
+            with col2:
+                st.metric("Market Cap (USD)", f"${filtered_df['market_cap_usd'].iloc[0]:.2f}")
+            with col3:
+                st.metric("24h Volume (USD)", f"${filtered_df['24h_volume_usd'].iloc[0]:.2f}")
 
             # Column selection for multiple charts
             x_cols = st.multiselect("Select X-axis columns", df.columns)
