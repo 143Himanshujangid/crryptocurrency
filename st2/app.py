@@ -20,7 +20,7 @@ def load_data():
 
 # Authentication
 def authenticate(username, password):
-    return username == "admin" and password == "admin123"
+    return username == "himanshu" and password == "himanshu123"
 
 # Function to create charts based on selection
 def create_chart(data, chart_type, columns, color_col=None):
@@ -45,7 +45,7 @@ def add_custom_css():
         <style>
         /* Admin Login Page Styling */
         .login-page {
-            border: 2px solid red;
+            border: 5px solid black;
             border-radius: 15px;
             padding: 30px;
             background-color: #f9f9f9;
