@@ -65,18 +65,21 @@ def main():
     # Load data
     df = load_data()
 
-    # Currency selection dropdown
+    # Sidebar configuration
     currency_options = df['symbol'].unique().tolist()
     selected_currency = st.sidebar.selectbox("Select Currency", currency_options)
 
     # Filter data based on selected currency
     filtered_df = df[df['symbol'] == selected_currency]
 
-    # Static Analysis
-    if st.sidebar.button("Show Static Analysis"):
+    # Static vs Dynamic Analysis toggle
+    analysis_type = st.sidebar.radio("Select Analysis Type", ["Static", "Dynamic"])
+
+    # Analysis Type: Static
+    if analysis_type == "Static":
         st.header("Static Analysis")
         
-        # Display all analysis options in a single layout
+        # Display all static analysis options
         st.subheader("Currency Metrics")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -86,7 +89,7 @@ def main():
         with col3:
             st.metric("24h Volume (USD)", f"${filtered_df['24h_volume_usd'].iloc[0]:.2f}")
 
-        st.subheader("Analysis Charts")
+        st.subheader("Static Charts")
         numeric_cols = df.select_dtypes(include=[np.number]).columns
         categorical_cols = df.select_dtypes(include=['object']).columns
 
@@ -96,9 +99,35 @@ def main():
         chart_types = ["Bar", "Line", "Scatter", "Pie", "Box", "Histogram"]
         selected_chart = st.selectbox("Select Chart Type", chart_types)
 
-        for x_col, y_col in zip(x_cols, y_cols):
-            fig = create_chart(df, selected_chart, [x_col, y_col])
-            st.plotly_chart(fig, use_container_width=True)
+        if x_cols and y_cols:
+            for x_col, y_col in zip(x_cols, y_cols):
+                fig = create_chart(df, selected_chart, [x_col, y_col])
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Please select at least one X and Y column for chart generation.")
+
+    # Analysis Type: Dynamic
+    elif analysis_type == "Dynamic":
+        col1, col2 = st.columns(2)
+        with col1:
+            st.header("Dynamic Analysis - File 1")
+            uploaded_file_1 = st.file_uploader("Upload CSV File 1", type=["csv"])
+            if uploaded_file_1:
+                df1 = pd.read_csv(uploaded_file_1)
+                x_col1 = st.selectbox("Select X-axis column (File 1)", df1.columns, key="file1_x")
+                y_col1 = st.selectbox("Select Y-axis column (File 1)", df1.select_dtypes(include=[np.number]).columns, key="file1_y")
+                fig1 = create_chart(df1, selected_chart, [x_col1, y_col1])
+                st.plotly_chart(fig1, use_container_width=True)
+
+        with col2:
+            st.header("Dynamic Analysis - File 2")
+            uploaded_file_2 = st.file_uploader("Upload CSV File 2", type=["csv"])
+            if uploaded_file_2:
+                df2 = pd.read_csv(uploaded_file_2)
+                x_col2 = st.selectbox("Select X-axis column (File 2)", df2.columns, key="file2_x")
+                y_col2 = st.selectbox("Select Y-axis column (File 2)", df2.select_dtypes(include=[np.number]).columns, key="file2_y")
+                fig2 = create_chart(df2, selected_chart, [x_col2, y_col2])
+                st.plotly_chart(fig2, use_container_width=True)
 
 if __name__ == "__main__":
     main()
