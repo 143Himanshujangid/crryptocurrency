@@ -50,10 +50,34 @@ def add_custom_css():
             color: red;
             font-weight: bold;
         }
+
+        /* Dropdown styling */
+        .stSelectbox div {
+            border: 1px solid red !important;
+            border-radius: 5px !important;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
         </style>
         """,
         unsafe_allow_html=True,
     )
+
+# Function to create charts
+def create_chart(data, chart_type, columns, color_col=None):
+    if chart_type == "Bar":
+        fig = px.bar(data, x=columns[0], y=columns[1], color=color_col, title="Bar Chart Analysis")
+    elif chart_type == "Line":
+        fig = px.line(data, x=columns[0], y=columns[1], color=color_col, title="Line Chart Analysis")
+    elif chart_type == "Scatter":
+        fig = px.scatter(data, x=columns[0], y=columns[1], color=color_col, title="Scatter Plot Analysis")
+    elif chart_type == "Pie":
+        fig = px.pie(data, values=columns[1], names=columns[0], title="Pie Chart Analysis")
+    elif chart_type == "Box":
+        fig = px.box(data, x=columns[0], y=columns[1], color=color_col, title="Box Plot Analysis")
+    else:  # Histogram
+        fig = px.histogram(data, x=columns[1], color=color_col, title="Histogram Analysis")
+    return fig
 
 # Main function
 def main():
@@ -105,10 +129,14 @@ def main():
     currency_options = df['symbol'].unique().tolist()
     selected_currency = st.sidebar.selectbox("Select Currency", currency_options)
 
-    # Sidebar Analysis Type
-    analysis_type = st.sidebar.radio("Select Analysis Type", ["Static", "Dynamic"])
+    # Sidebar Analysis Type (Dropdown with styled borders)
+    analysis_type = st.sidebar.selectbox(
+        "Select Analysis Type",
+        ["Static", "Dynamic"],
+        key="analysis_type",
+    )
 
-    # Sidebar Chart Type
+    # Sidebar Chart Type (Dropdown with styled borders)
     chart_types = ["Bar", "Line", "Scatter", "Pie", "Box", "Histogram"]
     selected_chart = st.sidebar.selectbox("Select Chart Type", chart_types)
 
