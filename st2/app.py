@@ -22,33 +22,50 @@ def load_data():
 def authenticate(username, password):
     return username == "admin" and password == "admin123"
 
-# Custom CSS for styling
+# Function to create charts based on selection
+def create_chart(data, chart_type, columns, color_col=None):
+    if chart_type == "Bar":
+        fig = px.bar(data, x=columns[0], y=columns[1], color=color_col, title="Bar Chart Analysis")
+    elif chart_type == "Line":
+        fig = px.line(data, x=columns[0], y=columns[1], color=color_col, title="Line Chart Analysis")
+    elif chart_type == "Scatter":
+        fig = px.scatter(data, x=columns[0], y=columns[1], color=color_col, title="Scatter Plot Analysis")
+    elif chart_type == "Pie":
+        fig = px.pie(data, values=columns[1], names=columns[0], title="Pie Chart Analysis")
+    elif chart_type == "Box":
+        fig = px.box(data, x=columns[0], y=columns[1], color=color_col, title="Box Plot Analysis")
+    else:  # Histogram
+        fig = px.histogram(data, x=columns[1], color=color_col, title="Histogram Analysis")
+    return fig
+
+# Custom CSS for borders and styling
 def add_custom_css():
     st.markdown(
         """
         <style>
-        /* Admin Login Page Full Border Styling */
-        .login-page {
-            border: 2px solid red;
-            border-radius: 15px;
+        /* Border and Border-radius for Admin Login Panel */
+        .login-panel {
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
             padding: 20px;
-            margin: 20px auto;
-            background: none; /* Remove white background */
-            box-shadow: 2px 2px 10px rgba(255, 0, 0, 0.3);
-            width: 100%; /* Ensure full alignment */
-        }
-        /* Align content centrally */
-        .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
         }
 
-        /* Highlight specific text in red */
-        .highlight {
-            color: red;
-            font-weight: bold;
+        /* Border for Sidebar Items */
+        .stSelectbox, .stRadio, .stMetric {
+            border: 1px solid #4CAF50;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        /* Cards with proper border-radius */
+        .stMetric {
+            margin: 5px;
+        }
+
+        /* Centralize Title and Cards */
+        .stTitle {
+            text-align: center;
         }
         </style>
         """,
@@ -57,7 +74,7 @@ def add_custom_css():
 
 # Main function
 def main():
-    # Add custom CSS
+    # Add custom styles
     add_custom_css()
 
     # Session state initialization
@@ -68,17 +85,8 @@ def main():
     if not st.session_state.authenticated:
         col1, col2, col3 = st.columns([1, 2, 1]) 
         with col2:
-            # Admin login page with full border
-            st.markdown('<div class="login-page">', unsafe_allow_html=True)
-            st.markdown(
-                """
-                <div class="login-content">
-                    <h1>Admin <span class="highlight">Login</span></h1>
-                    <p>Please enter your credentials to continue.</p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            st.markdown('<div class="login-panel">', unsafe_allow_html=True)
+            st.title("Admin Login")
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             if st.button("Login"):
@@ -91,12 +99,7 @@ def main():
         return
 
     # Main dashboard after authentication
-    st.markdown(
-        """
-        <h1>Data <span class="highlight">Analysis</span> Dashboard</h1>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.title("Data Analysis Dashboard")
 
     # Load data
     df = load_data()
