@@ -45,7 +45,7 @@ def add_custom_css():
         <style>
         /* Admin Login Page Styling */
         .login-page {
-            border: 5px solid read;
+            border: 3px solid read;
             border-radius: 15px;
             padding: 30px;
             background-color: #f9f9f9;
@@ -54,7 +54,7 @@ def add_custom_css():
 
         /* Styling Sidebar Items */
         .stSelectbox, .stRadio, .stMetric {
-            border: 5px solid red;
+            border: 3px solid red;
             border-radius: 15px;
             padding: 5px;
         }
