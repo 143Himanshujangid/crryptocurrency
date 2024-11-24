@@ -22,48 +22,7 @@ def load_data():
 def authenticate(username, password):
     return username == "admin" and password == "admin123"
 
-# Custom CSS for styling
-def add_custom_css():
-    st.markdown(
-        """
-        <style>
-        /* Admin Login Page Full Border Styling */
-        .login-page {
-            border: 2px solid red;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px auto;
-            background: none; /* Remove white background */
-            box-shadow: 2px 2px 10px rgba(255, 0, 0, 0.3);
-            width: 100%; /* Ensure full alignment */
-        }
-        /* Align content centrally */
-        .login-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Highlight specific text in red */
-        .highlight {
-            color: red;
-            font-weight: bold;
-        }
-
-        /* Dropdown styling */
-        .stSelectbox div {
-            border: 1px solid red !important;
-            border-radius: 5px !important;
-            margin-bottom: 10px;
-            padding: 5px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# Function to create charts
+# Function to create charts based on selection
 def create_chart(data, chart_type, columns, color_col=None):
     if chart_type == "Bar":
         fig = px.bar(data, x=columns[0], y=columns[1], color=color_col, title="Bar Chart Analysis")
@@ -79,9 +38,45 @@ def create_chart(data, chart_type, columns, color_col=None):
         fig = px.histogram(data, x=columns[1], color=color_col, title="Histogram Analysis")
     return fig
 
+# Custom CSS for borders and styling
+def add_custom_css():
+    st.markdown(
+        """
+        <style>
+        /* Admin Login Page Styling */
+        .login-page {
+            border: 2px solid red;
+            border-radius: 15px;
+            padding: 30px;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 12px rgba(255, 0, 0, 0.4);
+        }
+
+        /* Styling Sidebar Items */
+        .stSelectbox, .stRadio, .stMetric {
+            border: 1px solid red;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        /* Heading Customization */
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* Cards with consistent border-radius */
+        .stMetric {
+            margin: 5px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
 # Main function
 def main():
-    # Add custom CSS
+    # Add custom styles
     add_custom_css()
 
     # Session state initialization
@@ -92,14 +87,10 @@ def main():
     if not st.session_state.authenticated:
         col1, col2, col3 = st.columns([1, 2, 1]) 
         with col2:
-            # Admin login page with full border
             st.markdown('<div class="login-page">', unsafe_allow_html=True)
             st.markdown(
                 """
-                <div class="login-content">
-                    <h1>Admin <span class="highlight">Login</span></h1>
-                    <p>Please enter your credentials to continue.</p>
-                </div>
+                <h1>Admin <span class="highlight">Login</span></h1>
                 """,
                 unsafe_allow_html=True,
             )
@@ -129,14 +120,10 @@ def main():
     currency_options = df['symbol'].unique().tolist()
     selected_currency = st.sidebar.selectbox("Select Currency", currency_options)
 
-    # Sidebar Analysis Type (Dropdown with styled borders)
-    analysis_type = st.sidebar.selectbox(
-        "Select Analysis Type",
-        ["Static", "Dynamic"],
-        key="analysis_type",
-    )
+    # Sidebar Analysis Type
+    analysis_type = st.sidebar.radio("Select Analysis Type", ["Static", "Dynamic"])
 
-    # Sidebar Chart Type (Dropdown with styled borders)
+    # Sidebar Chart Type
     chart_types = ["Bar", "Line", "Scatter", "Pie", "Box", "Histogram"]
     selected_chart = st.sidebar.selectbox("Select Chart Type", chart_types)
 
