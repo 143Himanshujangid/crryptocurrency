@@ -22,24 +22,44 @@ def load_data():
 def authenticate(username, password):
     return username == "admin" and password == "admin123"
 
-# Function to create charts
-def create_chart(data, chart_type, columns, color_col=None):
-    if chart_type == "Bar":
-        fig = px.bar(data, x=columns[0], y=columns[1], color=color_col, title="Bar Chart Analysis")
-    elif chart_type == "Line":
-        fig = px.line(data, x=columns[0], y=columns[1], color=color_col, title="Line Chart Analysis")
-    elif chart_type == "Scatter":
-        fig = px.scatter(data, x=columns[0], y=columns[1], color=color_col, title="Scatter Plot Analysis")
-    elif chart_type == "Pie":
-        fig = px.pie(data, values=columns[1], names=columns[0], title="Pie Chart Analysis")
-    elif chart_type == "Box":
-        fig = px.box(data, x=columns[0], y=columns[1], color=color_col, title="Box Plot Analysis")
-    else:  # Histogram
-        fig = px.histogram(data, x=columns[1], color=color_col, title="Histogram Analysis")
-    return fig
+# Custom CSS for styling
+def add_custom_css():
+    st.markdown(
+        """
+        <style>
+        /* Admin Login Page Full Border Styling */
+        .login-page {
+            border: 2px solid red;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            background: none; /* Remove white background */
+            box-shadow: 2px 2px 10px rgba(255, 0, 0, 0.3);
+            width: 100%; /* Ensure full alignment */
+        }
+        /* Align content centrally */
+        .login-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Highlight specific text in red */
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # Main function
 def main():
+    # Add custom CSS
+    add_custom_css()
+
     # Session state initialization
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
@@ -48,7 +68,17 @@ def main():
     if not st.session_state.authenticated:
         col1, col2, col3 = st.columns([1, 2, 1]) 
         with col2:
-            st.title("Admin Login")
+            # Admin login page with full border
+            st.markdown('<div class="login-page">', unsafe_allow_html=True)
+            st.markdown(
+                """
+                <div class="login-content">
+                    <h1>Admin <span class="highlight">Login</span></h1>
+                    <p>Please enter your credentials to continue.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             if st.button("Login"):
@@ -57,11 +87,17 @@ def main():
                     st.experimental_rerun()
                 else:
                     st.error("Invalid credentials")
+            st.markdown('</div>', unsafe_allow_html=True)
         return
 
     # Main dashboard after authentication
-    st.title("Data Analysis Dashboard")
-    
+    st.markdown(
+        """
+        <h1>Data <span class="highlight">Analysis</span> Dashboard</h1>
+        """,
+        unsafe_allow_html=True,
+    )
+
     # Load data
     df = load_data()
 
@@ -69,12 +105,8 @@ def main():
     currency_options = df['symbol'].unique().tolist()
     selected_currency = st.sidebar.selectbox("Select Currency", currency_options)
 
-    # "Select Analysis Type" converted to dropdown
-    analysis_type = st.sidebar.selectbox(
-        "Select Analysis Type",  # Dropdown label
-        ["Static", "Dynamic"],  # Dropdown options
-        key="analysis_type"     # Unique key
-    )
+    # Sidebar Analysis Type
+    analysis_type = st.sidebar.radio("Select Analysis Type", ["Static", "Dynamic"])
 
     # Sidebar Chart Type
     chart_types = ["Bar", "Line", "Scatter", "Pie", "Box", "Histogram"]
@@ -87,7 +119,8 @@ def main():
     if analysis_type == "Static":
         st.header("Static Analysis")
         
-        # Display static analysis
+        # Display all static analysis options
+        st.subheader("Currency Metrics")
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric("Price (USD)", f"${filtered_df['price_usd'].iloc[0]:.2f}")
@@ -96,6 +129,21 @@ def main():
         with col3:
             st.metric("24h Volume (USD)", f"${filtered_df['24h_volume_usd'].iloc[0]:.2f}")
 
+        st.subheader("Static Charts")
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        categorical_cols = df.select_dtypes(include=['object']).columns
+
+        x_cols = st.multiselect("Select X-axis columns", categorical_cols)
+        y_cols = st.multiselect("Select Y-axis columns", numeric_cols)
+
+        if x_cols and y_cols:
+            for x_col, y_col in zip(x_cols, y_cols):
+                fig = create_chart(df, selected_chart, [x_col, y_col])
+                st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Please select at least one X and Y column for chart generation.")
+
+    # Dynamic Analysis
     elif analysis_type == "Dynamic":
         col1, col2 = st.columns(2)
         with col1:
