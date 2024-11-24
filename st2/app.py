@@ -43,29 +43,31 @@ def add_custom_css():
     st.markdown(
         """
         <style>
-        /* Border and Border-radius for Admin Login Panel */
-        .login-panel {
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+        /* Admin Login Page Styling */
+        .login-page {
+            border: 2px solid red;
+            border-radius: 15px;
+            padding: 30px;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 12px rgba(255, 0, 0, 0.4);
         }
 
-        /* Border for Sidebar Items */
+        /* Styling Sidebar Items */
         .stSelectbox, .stRadio, .stMetric {
-            border: 1px solid #4CAF50;
+            border: 1px solid red;
             border-radius: 10px;
             padding: 5px;
         }
 
-        /* Cards with proper border-radius */
-        .stMetric {
-            margin: 5px;
+        /* Heading Customization */
+        .highlight {
+            color: red;
+            font-weight: bold;
         }
 
-        /* Centralize Title and Cards */
-        .stTitle {
-            text-align: center;
+        /* Cards with consistent border-radius */
+        .stMetric {
+            margin: 5px;
         }
         </style>
         """,
@@ -85,8 +87,13 @@ def main():
     if not st.session_state.authenticated:
         col1, col2, col3 = st.columns([1, 2, 1]) 
         with col2:
-            st.markdown('<div class="login-panel">', unsafe_allow_html=True)
-            st.title("Admin Login")
+            st.markdown('<div class="login-page">', unsafe_allow_html=True)
+            st.markdown(
+                """
+                <h1>Admin <span class="highlight">Login</span></h1>
+                """,
+                unsafe_allow_html=True,
+            )
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             if st.button("Login"):
@@ -99,7 +106,12 @@ def main():
         return
 
     # Main dashboard after authentication
-    st.title("Data Analysis Dashboard")
+    st.markdown(
+        """
+        <h1>Data <span class="highlight">Analysis</span> Dashboard</h1>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # Load data
     df = load_data()
