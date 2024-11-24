@@ -108,7 +108,7 @@ def main():
     # Main dashboard after authentication
     st.markdown(
         """
-        <h1>Data <span class="highlight">Analysis</span> Dashboard</h1>
+        <h1>📊Data <span class="highlight">Analysis</span> Dashboard</h1>
         """,
         unsafe_allow_html=True,
     )
