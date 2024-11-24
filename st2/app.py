@@ -47,7 +47,7 @@ def add_custom_css():
         .login-page {
             border: 2px solid red;
             border-radius: 15px;
-            padding: 30px;
+            padding: 0px;
             background-color: #f9f9f9;
             box-shadow: 2px 2px 12px rgba(255, 0, 0, 0.4);
         }
