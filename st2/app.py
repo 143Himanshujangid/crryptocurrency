@@ -167,31 +167,6 @@ def main():
     # Load data
     df = load_data()
 
-    # Chart Type Dropdown
-    chart_types = [
-        "Top cryptocurrencies by market capitalization",
-        "Top cryptocurrencies by 24-hour trading volume",
-        "Cryptocurrencies with the highest percentage change in 24 hours",
-        "Cryptocurrencies with the highest percentage change in the last hour",
-        "Cryptocurrencies with the highest percentage change in 7 days",
-        "Correlation heatmap of numeric fields",
-        "Distribution of price_usd",
-        "Distribution of market_cap_usd",
-        "Average price of cryptocurrencies by symbol",
-        "Total market cap for each symbol",
-        "Cryptocurrencies with the smallest circulating supply",
-        "Cryptocurrencies with the largest max supply",
-        "Cryptocurrencies ranked by rank and their prices",
-        "Cryptocurrencies with a high volume-to-market-cap ratio",
-        "Top 10 cryptocurrencies by price_btc",
-        "Relationship between price_usd and market_cap_usd",
-        "Relationship between percent_change_1h and percent_change_24h",
-        "Cryptocurrencies grouped by symbol and their average percent_change_7d",
-        "Distribution of top 10 cryptocurrencies' 24h_volume_usd",
-        "Comparison of price_usd and price_btc"
-    ]
-    selected_chart_type = st.selectbox("Select Chart Type", chart_types)
-
     # Sidebar configuration
     currency_options = df['symbol'].unique().tolist()
     selected_currency = st.sidebar.selectbox("Select Currency", currency_options)
@@ -205,10 +180,6 @@ def main():
 
     # Filter data based on selected currency
     filtered_df = df[df['symbol'] == selected_currency]
-
-    # Display the selected chart
-    fig = create_chart(df, selected_chart_type, [], color_col=None)  # Pass empty columns for now
-    st.plotly_chart(fig, use_container_width=True)
 
     # Static Analysis
     if analysis_type == "Static":
@@ -227,6 +198,28 @@ def main():
         st.subheader("Static Charts")
 
         # Add the dropdown here, only if "Static" is selected
+        chart_types = [
+            "Top cryptocurrencies by market capitalization",
+            "Top cryptocurrencies by 24-hour trading volume",
+            "Cryptocurrencies with the highest percentage change in 24 hours",
+            "Cryptocurrencies with the highest percentage change in the last hour",
+            "Cryptocurrencies with the highest percentage change in 7 days",
+            "Correlation heatmap of numeric fields",
+            "Distribution of price_usd",
+            "Distribution of market_cap_usd",
+            "Average price of cryptocurrencies by symbol",
+            "Total market cap for each symbol",
+            "Cryptocurrencies with the smallest circulating supply",
+            "Cryptocurrencies with the largest max supply",
+            "Cryptocurrencies ranked by rank and their prices",
+            "Cryptocurrencies with a high volume-to-market-cap ratio",
+            "Top 10 cryptocurrencies by price_btc",
+            "Relationship between price_usd and market_cap_usd",
+            "Relationship between percent_change_1h and percent_change_24h",
+            "Cryptocurrencies grouped by symbol and their average percent_change_7d",
+            "Distribution of top 10 cryptocurrencies' 24h_volume_usd",
+            "Comparison of price_usd and price_btc"
+        ]
         question_dropdown = st.selectbox("Select a question:", chart_types)
 
         # Call create_chart based on the selected question
