@@ -20,7 +20,7 @@ def load_data():
 
 # Authentication
 def authenticate(username, password):
-    return username == "admin" and password == "admin123"
+    return username == "hi" and password == "hi123"
 
 # Function to create charts based on selection
 def create_chart(data, chart_type, columns, color_col=None):
