@@ -213,7 +213,7 @@ def main():
     # Static Analysis
     if analysis_type == "Static":
         st.header("Static Analysis")
-        
+
         # Display all static analysis options
         st.subheader("Currency Metrics")
         col1, col2, col3 = st.columns(3)
@@ -228,6 +228,12 @@ def main():
 
         # Add the dropdown here, only if "Static" is selected
         question_dropdown = st.selectbox("Select a question:", chart_types)
+
+        # Call create_chart based on the selected question
+        if question_dropdown:
+            fig = create_chart(df, question_dropdown, [], color_col=None)
+            st.plotly_chart(fig, use_container_width=True)
+
 
         numeric_cols = df.select_dtypes(include=[np.number]).columns
         categorical_cols = df.select_dtypes(include=['object']).columns
